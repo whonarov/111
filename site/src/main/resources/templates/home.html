@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Головна | Система Оповіщень</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #e0f7fa, #ffffff);
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #00716f;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 100px 20px 60px;
+            background: url('https://images.unsplash.com/photo-1581093588401-0ef99f3d1c0c?fit=crop&w=1500&q=80') no-repeat center center/cover;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        .hero p {
+            font-size: 20px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .features {
+            max-width: 1100px;
+            margin: 40px auto;
+            display: flex;
+            gap: 30px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .feature {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            flex: 1 1 300px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature h3 {
+            color: #00716f;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #00716f;
+            color: white;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div><strong>ThreatAlert</strong></div>
+    <div>
+        <a href="/alerts">Оповіщення</a>
+        <a href="/user/dashboard" sec:authorize="isAuthenticated()">Кабінет</a>
+        <a href="/admin/panel" sec:authorize="hasRole('ADMIN')">Адмін</a>
+        <a href="/user/settings" sec:authorize="isAuthenticated()">Сповіщення</a>
+        <a href="/login" sec:authorize="!isAuthenticated()">Увійти</a>
+        <a href="/logout" sec:authorize="isAuthenticated()">Вийти</a>
+    </div>
+</div>
+
+<div class="hero">
+    <h1>Система Оповіщень</h1>
+    <p>Отримуйте важливу інформацію першими — швидко, надійно, зручно.</p>
+</div>
+
+<div class="features">
+    <div class="feature">
+        <h3>Перегляд оповіщень</h3>
+        <p>Відстежуйте події у вашому місті в режимі реального часу.</p>
+    </div>
+    <div class="feature">
+        <h3>Особистий кабінет</h3>
+        <p>Зберігайте історію, залишайте відгуки, керуйте фільтрами.</p>
+    </div>
+    <div class="feature">
+        <h3>Адмін-панель</h3>
+        <p>Створюйте або оновлюйте оповіщення для користувачів.</p>
+    </div>
+</div>
+
+<div class="footer">
+    © 2025 ThreatAlert — Усі права захищено
+</div>
+
+</body>
+</html>

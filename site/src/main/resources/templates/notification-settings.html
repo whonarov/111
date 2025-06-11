@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Налаштування сповіщень</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #00716f; }
+        form { display: flex; flex-direction: column; }
+        label { margin-bottom: 10px; }
+        input[type="text"], select { padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #00716f; color: #fff; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #005b53; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Налаштування сповіщень</h1>
+    <form method="post" action="/user/settings" th:object="${settings}">
+        <label>
+            <input type="checkbox" th:field="*{emailNotifications}">
+            Отримувати сповіщення на email
+        </label>
+        <label>
+            <input type="checkbox" th:field="*{smsNotifications}">
+            Отримувати сповіщення через SMS
+        </label>
+        <label>
+            <input type="checkbox" th:field="*{pushNotifications}">
+            Отримувати push-повідомлення
+        </label>
+        <label>
+            Частота сповіщень:
+            <select th:field="*{notificationFrequency}">
+                <option value="IMMEDIATE">Негайно</option>
+                <option value="HOURLY">Щогодини</option>
+                <option value="DAILY">Щодня</option>
+            </select>
+        </label>
+        <label>
+            Улюблені міста (через кому):
+            <input type="text" th:field="*{preferredCities}" placeholder="Наприклад, Київ,Одеса">
+        </label>
+        <button type="submit">Зберегти налаштування</button>
+    </form>
+</div>
+</body>
+</html>

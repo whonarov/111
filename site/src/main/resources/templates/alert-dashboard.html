@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Оповіщення про загрозу</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        /* Власні стилі для сучасного вигляду */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(120deg, #e0f7fa, #ffffff);
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 960px;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(to right, #00716f, #00a896);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        header h1 { font-size: 30px; margin-bottom: 8px; }
+        header p { font-size: 16px; }
+        section {
+            padding: 20px 30px;
+        }
+        section h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #00716f;
+        }
+        form input[type="text"],
+        form textarea,
+        form input[type="number"],
+        form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        form input:focus,
+        form textarea:focus,
+        form select:focus {
+            border-color: #00a896;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 169, 150, 0.3);
+        }
+        form button {
+            background: #00716f;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        form button:hover { background: #005b53; }
+        h3 { background: #00a896; color: white; padding: 12px 20px; font-size: 20px; }
+        ul#alertsList { list-style: none; padding: 20px 30px; }
+        ul#alertsList li {
+            background: #f1fdfb;
+            border-left: 6px solid #00a896;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Оповіщення про загрозу</h1>
+        <p>Створюйте оповіщення і переглядайте актуальні події у містах</p>
+    </header>
+
+    <sec:authorize access="isAuthenticated()">
+        <section>
+            <h2>Створити нове оповіщення</h2>
+            <form id="alertForm">
+                <input type="text" id="title" name="title" placeholder="Заголовок" required>
+                <textarea id="description" name="description" placeholder="Опис" required></textarea>
+                <input type="text" id="city" name="city" placeholder="Місто" required>
+
+                <select id="category" name="category">
+                    <option value="GENERAL">Загальна</option>
+                    <option value="FIRE">Пожежа</option>
+                    <option value="CRIME">Кримінальні події</option>
+                    <option value="ENVIRONMENTAL">Екологічні аварії</option>
+                </select>
+                <input type="text" id="imageUrl" name="imageUrl" placeholder="Посилання на зображення">
+                <input type="text" id="videoUrl" name="videoUrl" placeholder="Посилання на відео">
+                <button type="submit">Надіслати</button>
+            </form>
+        </section>
+    </sec:authorize>
+
+    <h3>Поточні оповіщення (відсортовані за містами):</h3>
+    <ul id="alertsList">
+        <li th:each="alert : ${alerts}">
+            <b th:text="${alert.title}"></b> –
+            <span th:text="${alert.description}"></span> | <strong th:text="${alert.city}"></strong>
+            <br>
+            <span>Категорія: <i th:text="${alert.category}"></i></span>,
+
+            <br>
+            <span th:if="${alert.imageUrl}">Зображення: <a th:href="${alert.imageUrl}" target="_blank">Переглянути</a></span>
+            <br>
+            <span th:if="${alert.videoUrl}">Відео: <a th:href="${alert.videoUrl}" target="_blank">Переглянути</a></span>
+            <br>
+            (<i th:text="${alert.status}"></i>)
+        </li>
+    </ul>
+</div>
+
+<script>
+    var socket = new SockJS('/ws-alerts');
+    var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function(frame) {
+        stompClient.subscribe('/topic/alerts', function(message) {
+            location.reload();
+        });
+    });
+
+    document.getElementById("alertForm")?.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        var title = document.getElementById("title").value;
+        var description = document.getElementById("description").value;
+        var city = document.getElementById("city").value;
+        var category = document.getElementById("category").value;
+        var imageUrl = document.getElementById("imageUrl").value;
+        var videoUrl = document.getElementById("videoUrl").value;
+
+        var data = {
+            title: title,
+            description: description,
+            city: city,
+
+            category: category,
+            imageUrl: imageUrl,
+            videoUrl: videoUrl
+        };
+
+        fetch("/api/alerts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(function(response) {
+                if (!response.ok) throw new Error("Помилка при створенні оповіщення");
+                return response.json();
+            })
+            .then(function(alertResponse) {
+                document.getElementById("alertForm").reset();
+                location.reload();
+            })
+            .catch(function(error) {
+                console.error("Помилка:", error);
+            });
+    });
+</script>
+</body>
+</html>

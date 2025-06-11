@@ -1,0 +1,18 @@
+<div th:fragment="header">
+
+    <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+        <h5 class="my-0 mr-md-auto font-weight-normal">Team Blog</h5>
+
+        <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+            <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/">Home</a>
+            <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/blog">Blog</a>
+            <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/about">About</a>
+
+            <a class="btn btn-success text-decoration-none" href="/blog/add">Add</a>
+        </nav>
+
+        <div th:if="${#request.isUserInRole('USER')}">
+            <a th:href="@{/logout}" class="btn btn-danger ms-2">Logout</a>
+        </div>
+    </div>
+</div>

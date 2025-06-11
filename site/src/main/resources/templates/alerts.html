@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої оповіщення</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(to right, #005f73, #0a9396);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        h3.group-title {
+            background: #94d2bd;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        ul li {
+            background: #fff;
+            border-left: 4px solid #94d2bd;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
+        }
+        ul li:hover {
+            background: #e9f5f2;
+        }
+        .alert-status {
+            font-style: italic;
+            color: #ee9b00;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .header {
+                padding: 15px;
+            }
+            ul li {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Мої оповіщення</h2>
+        <p>Оповіщення, створені вами, згруповані за містами</p>
+    </div>
+
+    <div th:if="${groupedAlerts != null}">
+        <div th:each="entry : ${groupedAlerts}">
+            <h3 class="group-title" th:text="${entry.key}">Місто</h3>
+            <ul>
+                <li th:each="alert : ${entry.value}">
+                    <b th:text="${alert.title}"></b> -
+                    <span th:text="${alert.description}"></span>
+                    (<i class="alert-status" th:text="${alert.status}"></i>)
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        var socket = new SockJS('/ws-alerts');
+        var stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            stompClient.subscribe('/topic/alerts', function(message) {
+                location.reload();
+            });
+        });
+    </script>
+</div>
+</body>
+</html>
